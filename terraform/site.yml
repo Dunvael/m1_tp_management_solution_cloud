@@ -1,62 +1,76 @@
-- hosts: web
-  become: yes
+- name: SecureCloud Hardening
+  hosts: web
+  become: true
+
+  vars_files:
+    - group_vars/all/main.yml
+    - group_vars/all/vault.yml
+
+  handlers:
+    - name: Restart SSH
+      service:
+        name: ssh
+        state: restarted
+
   tasks:
-    - name: Update cache and upgrade packages
+
+    - name: Update apt cache
       apt:
         update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade packages
+      apt:
         upgrade: dist
 
     - name: Disable SSH password authentication
       lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: '^PasswordAuthentication'
+        regexp: '^(#\s*)?PasswordAuthentication'
         line: 'PasswordAuthentication no'
+      notify: Restart SSH
 
     - name: Disable root login
       lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: '^PermitRootLogin'
+        regexp: '^(#\s*)?PermitRootLogin'
         line: 'PermitRootLogin no'
+      notify: Restart SSH
 
-    - name: Ensure UFW is installed
+    - name: Ensure UFW installed
       apt:
         name: ufw
         state: present
 
+    - name: Default deny incoming
+      ufw:
+        direction: incoming
+        policy: deny
+
+    - name: Default allow outgoing
+      ufw:
+        direction: outgoing
+        policy: allow
+
     - name: Allow HTTP
       ufw:
         rule: allow
-        port: "80"
+        port: 80
         proto: tcp
 
     - name: Allow HTTPS
       ufw:
         rule: allow
-        port: "443"
+        port: 443
         proto: tcp
 
-    - name: Allow SSH from your management IP only
+    - name: Allow SSH from management IP only
       ufw:
         rule: allow
-        port: "22"
+        port: 22
         proto: tcp
-        from_ip: "TON_IP_PUBLIQUE"
-
-    - name: Deny incoming by default
-      ufw:
-        direction: incoming
-        policy: deny
-
-    - name: Allow outgoing by default
-      ufw:
-        direction: outgoing
-        policy: allow
+        from_ip: "{{ allowed_ssh_from_ip }}"
 
     - name: Enable UFW
       ufw:
         state: enabled
-
-    - name: Restart SSH
-      service:
-        name: ssh
-        state: restarted
