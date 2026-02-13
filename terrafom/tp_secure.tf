@@ -19,16 +19,10 @@ terraform {
 ############################
 # PROVIDER (sans clés en dur)
 ############################
-variable "aws_region" {
-  type    = string
-  default = "eu-west-3"
-}
 
+# Auth via AWS CLI profile
 provider "aws" {
   region = var.aws_region
-  # Auth via AWS CLI profile ou variables d'environnement:
-  # export AWS_PROFILE=securecloud
-  # ou AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
 }
 
 ############################
@@ -36,7 +30,7 @@ provider "aws" {
 ############################
 variable "allowed_ssh_cidr" {
   type        = string
-  description = "IP publique autorisée en SSH (format /32, ex: 82.xxx.xxx.xxx/32)"
+  description = "IP publique autorisée en SSH (format /32)"
 }
 
 variable "ssh_public_key" {
@@ -44,16 +38,21 @@ variable "ssh_public_key" {
   description = "Clé publique SSH (contenu de ~/.ssh/id_rsa.pub)"
 }
 
+variable "aws_region" {
+  type = string
+  description = "Région AWS"
+}
+
 variable "db_username" {
   type        = string
-  description = "Utilisateur DB (non sensible)"
+  description = "Utilisateur DB"
   default     = "admin"
 }
 
 variable "db_password" {
   type        = string
   sensitive   = true
-  description = "Mot de passe DB (sensible) - à fournir via terraform.tfvars"
+  description = "Mot de passe DB (sensible)"
 }
 
 ############################
@@ -65,7 +64,7 @@ data "aws_availability_zones" "available" {
 
 data "aws_ami" "ubuntu_22_04" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+  owners      = ["099720109477"]
 
   filter {
     name   = "name"
@@ -341,7 +340,7 @@ resource "aws_db_instance" "secure_db" {
   vpc_security_group_ids = [aws_security_group.db_sg.id]
 
   storage_encrypted       = true
-  backup_retention_period = 7
+  backup_retention_period = 1
 
   skip_final_snapshot       = false
   final_snapshot_identifier = "securecloud-final-snapshot"
