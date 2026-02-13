@@ -39,7 +39,7 @@ variable "ssh_public_key" {
 }
 
 variable "aws_region" {
-  type = string
+  type        = string
   description = "Région AWS"
 }
 
@@ -325,11 +325,11 @@ resource "aws_db_subnet_group" "db_subnets" {
 }
 
 resource "aws_db_instance" "secure_db" {
-  identifier             = "securecloud-mysql"
-  allocated_storage      = 20
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  instance_class         = "db.t3.micro"
+  identifier        = "securecloud-mysql"
+  allocated_storage = 20
+  engine            = "mysql"
+  engine_version    = "8.0"
+  instance_class    = "db.t3.micro"
 
   db_name  = "critique_db"
   username = var.db_username
