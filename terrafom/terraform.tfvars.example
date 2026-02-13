@@ -1,0 +1,5 @@
+aws_region       = "eu-west-3"
+allowed_ssh_cidr = "X.X.X.X/32"
+ssh_public_key   = "ssh-rsa AAAA...."
+db_password      = "CHANGEME"
+db_username      = "CHANGEME"
