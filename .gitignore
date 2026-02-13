@@ -1,0 +1,17 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+crash.log
+
+# Sensitive files
+*.pem
+*.key
+
+# Ansible
+*.retry
+vault.yml
+
+# OS
+.DS_Store
