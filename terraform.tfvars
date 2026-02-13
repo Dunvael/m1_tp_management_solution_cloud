@@ -1,0 +1,5 @@
+aws_region       = "eu-west-3"
+allowed_ssh_cidr = "104.28.230.81/32"
+ssh_public_key   = "ssh-rsa AAAA...."
+db_password      = "bcuzygVZJ-jeGYU12!"
+db_username      = "admin"

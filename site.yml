@@ -1,0 +1,62 @@
+- hosts: web
+  become: yes
+  tasks:
+    - name: Update cache and upgrade packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Disable SSH password authentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+
+    - name: Disable root login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+
+    - name: Ensure UFW is installed
+      apt:
+        name: ufw
+        state: present
+
+    - name: Allow HTTP
+      ufw:
+        rule: allow
+        port: "80"
+        proto: tcp
+
+    - name: Allow HTTPS
+      ufw:
+        rule: allow
+        port: "443"
+        proto: tcp
+
+    - name: Allow SSH from your management IP only
+      ufw:
+        rule: allow
+        port: "22"
+        proto: tcp
+        from_ip: "TON_IP_PUBLIQUE"
+
+    - name: Deny incoming by default
+      ufw:
+        direction: incoming
+        policy: deny
+
+    - name: Allow outgoing by default
+      ufw:
+        direction: outgoing
+        policy: allow
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    - name: Restart SSH
+      service:
+        name: ssh
+        state: restarted
